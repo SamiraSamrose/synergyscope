@@ -1,0 +1,24 @@
+# File: infrastructure/cloudformation/template.yaml
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'SynergyScope CloudFormation Stack'
+
+Resources:
+  DataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'synergyscope-data-${AWS::StackName}'
+      VersioningConfiguration:
+        Status: Enabled
+
+  NeptuneCluster:
+    Type: AWS::Neptune::DBCluster
+    Properties:
+      DBClusterIdentifier: synergyscope-neptune
+      StorageEncrypted: true
+
+Outputs:
+  BucketName:
+    Value: !Ref DataBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-DataBucket'

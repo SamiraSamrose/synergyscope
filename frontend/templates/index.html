@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<!--# File: frontend/templates/index.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynergyScope - AI Agents for Team Adaptation</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>SynergyScope</h1>
+                <p class="tagline">AI Agents for Team Adaptation & Meta Evolution</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-link active">Dashboard</a>
+                <a href="/synergy_insights.html" class="nav-link">Synergy</a>
+                <a href="/meta_evolution.html" class="nav-link">Meta Evolution</a>
+                <a href="/adaptation_tracker.html" class="nav-link">Adaptation</a>
+                <a href="/predictions.html" class="nav-link">Predictions</a>
+                <a href="/season_recap.html" class="nav-link">Season Recap</a>
+                <a href="/demo.html" class="nav-link">Demo</a>
+            </nav>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard">
+            <!-- Search Section -->
+            <section class="search-section">
+                <h2>Analyze Your Performance</h2>
+                <div class="search-form">
+                    <input type="text" id="summonerName" placeholder="Enter Summoner Name" class="input-field">
+                    <select id="region" class="select-field">
+                        <option value="na1">NA</option>
+                        <option value="euw1">EUW</option>
+                        <option value="kr">KR</option>
+                        <option value="eun1">EUNE</option>
+                    </select>
+                    <button onclick="analyzeSummoner()" class="btn-primary">Analyze</button>
+                </div>
+                <div id="analysisStatus" class="status-message"></div>
+            </section>
+
+            <!-- Agent Status Cards -->
+            <section class="agent-status">
+                <h2>Multi-Agent System Status</h2>
+                <div class="agent-grid">
+                    <div class="agent-card" data-agent="social-graph">
+                        <div class="agent-icon">🕸️</div>
+                        <h3>Social Graph Agent</h3>
+                        <p class="agent-description">Building player relationship networks</p>
+                        <div class="agent-status-indicator">
+                            <span class="status-dot status-active"></span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-card" data-agent="chemistry">
+                        <div class="agent-icon">⚡</div>
+                        <h3>Chemistry Analyst</h3>
+                        <p class="agent-description">Quantifying synergy with GNN models</p>
+                        <div class="agent-status-indicator">
+                            <span class="status-dot status-active"></span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-card" data-agent="meta">
+                        <div class="agent-icon">📊</div>
+                        <h3>Meta Analyst</h3>
+                        <p class="agent-description">Tracking patch changes and meta shifts</p>
+                        <div class="agent-status-indicator">
+                            <span class="status-dot status-active"></span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-card" data-agent="adaptation">
+                        <div class="agent-icon">📈</div>
+                        <h3>Adaptation Agent</h3>
+                        <p class="agent-description">Modeling learning curves</p>
+                        <div class="agent-status-indicator">
+                            <span class="status-dot status-active"></span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-card" data-agent="compatibility">
+                        <div class="agent-icon">🎯</div>
+                        <h3>Compatibility Agent</h3>
+                        <p class="agent-description">Predicting optimal compositions</p>
+                        <div class="agent-status-indicator">
+                            <span class="status-dot status-active"></span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-card" data-agent="storyteller">
+                        <div class="agent-icon">✨</div>
+                        <h3>Storyteller Agent</h3>
+                        <p class="agent-description">Generating AI narratives</p>
+                        <div class="agent-status-indicator">
+                            <span class="status-dot status-active"></span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-card" data-agent="visualizer">
+                        <div class="agent-icon">📉</div>
+                        <h3>Visualizer Agent</h3>
+                        <p class="agent-description">Creating insight dashboards</p>
+                        <div class="agent-status-indicator">
+                            <span class="status-dot status-active"></span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Insights -->
+            <section class="quick-insights">
+                <h2>Latest Insights</h2>
+                <div class="insights-container" id="latestInsights">
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="insight-type">Synergy</span>
+                            <span class="insight-time">2 hours ago</span>
+                        </div>
+                        <p class="insight-text">
+                            Your synergy with Player X reached peak performance in patch 14.20, 
+                            driven by coordinated objective control and complementary champion pools.
+                        </p>
+                        <div class="insight-metrics">
+                            <span class="metric">Win Rate: +12%</span>
+                            <span class="metric">Synergy Score: 0.87</span>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="insight-type">Adaptation</span>
+                            <span class="insight-time">5 hours ago</span>
+                        </div>
+                        <p class="insight-text">
+                            You adapted to the latest ADC meta changes faster than 78% of players 
+                            in your MMR bracket, showing strong meta resilience.
+                        </p>
+                        <div class="insight-metrics">
+                            <span class="metric">Adaptation Speed: 1.2 patches</span>
+                            <span class="metric">Percentile: Top 22%</span>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="insight-type">Prediction</span>
+                            <span class="insight-time">1 day ago</span>
+                        </div>
+                        <p class="insight-text">
+                            For patch 14.21, you are projected to win 15% more games if you prioritize 
+                            tank supports with adaptive ADC picks in the current objective-focused meta.
+                        </p>
+                        <div class="insight-metrics">
+                            <span class="metric">Predicted Win Rate: 58%</span>
+                            <span class="metric">Confidence: 84%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Visualization Preview -->
+            <section class="viz-preview">
+                <h2>Performance Overview</h2>
+                <div class="viz-grid">
+                    <div class="viz-card">
+                        <h3>Synergy Network</h3>
+                        <canvas id="synergyNetworkPreview"></canvas>
+                        <a href="/synergy_insights.html" class="link-explore">Explore Full Network →</a>
+                    </div>
+
+                    <div class="viz-card">
+                        <h3>Patch Adaptation</h3>
+                        <canvas id="adaptationCurvePreview"></canvas>
+                        <a href="/adaptation_tracker.html" class="link-explore">View Detailed Analysis →</a>
+                    </div>
+
+                    <div class="viz-card">
+                        <h3>Meta Evolution</h3>
+                        <canvas id="metaTimelinePreview"></canvas>
+                        <a href="/meta_evolution.html" class="link-explore">Explore Meta Trends →</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Meta Chat Interface -->
+            <section class="meta-chat">
+                <h2>Ask About Your Performance</h2>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message bot">
+                            <p>Hi! I am your Meta Chat assistant. Ask me anything about your team synergy, 
+                            adaptation patterns, or meta performance.</p>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input 
+                            type="text" 
+                            id="chatInput" 
+                            placeholder="E.g., How did we adapt to the latest ADC patch?"
+                            class="chat-input"
+                        >
+                        <button onclick="sendChatMessage()" class="btn-chat">Send</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 SynergyScope | Powered by AWS AI Services & League API</p>
+            <div class="footer-links">
+                <a href="/docs">Documentation</a>
+                <a href="/api/v1/docs">API Reference</a>
+                <a href="https://github.com/yourusername/synergyscope">GitHub</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/static/js/main.js"></script>
+    <script>
+        // Initialize dashboard on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            loadPreviewVisualizations();
+        });
+    </script>
+</body>
+</html>

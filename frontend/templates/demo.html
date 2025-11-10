@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<!--# File: frontend/templates/demo.html
+    # Purpose: Interactive demo interface with all agent features -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynergyScope - Interactive Demo</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <style>
+        .demo-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .demo-output {
+            background: var(--dark-bg);
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            overflow-x: auto;
+        }
+        
+        .demo-output pre {
+            color: #00c896;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .agent-demo-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .agent-demo-card.active {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(0, 102, 204, 0.3);
+        }
+        
+        .demo-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: var(--dark-bg);
+            border-radius: 6px;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .step-status {
+            margin-left: auto;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .step-status.pending {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffaa00;
+        }
+        
+        .step-status.running {
+            background: rgba(0, 102, 204, 0.2);
+            color: var(--primary-color);
+        }
+        
+        .step-status.complete {
+            background: rgba(0, 200, 150, 0.2);
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <h1>SynergyScope Interactive Demo</h1>
+                <p class="tagline">Explore Each Agent and Track Testing & Demoing</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-link">Dashboard</a>
+                <a href="/demo.html" class="nav-link active">Demo</a>
+            </nav>
+        </header>
+
+        <main class="dashboard">
+            <!-- Demo Control Panel -->
+            <section class="demo-section">
+                <h2>Demo Control Panel</h2>
+                <div class="demo-controls">
+                    <button onclick="runFullPipeline()" class="btn-primary">Run Full Pipeline</button>
+                    <button onclick="resetDemo()" class="btn-primary" style="background: #ff6b35;">Reset Demo</button>
+                    <select id="demoMode" class="select-field">
+                        <option value="sequential">Sequential Mode</option>
+                        <option value="parallel">Parallel Mode</option>
+                    </select>
+                </div>
+                <div id="pipelineStatus" class="demo-output">
+                    <pre>Ready to start demo. Click "Run Full Pipeline" to begin...</pre>
+                </div>
+            </section>
+
+            <!-- Agent 1: Social Graph Agent -->
+            <section class="agent-demo-card" id="agent1">
+                <h2>1. Social Graph Agent (Graph Builder)</h2>
+                <p>Builds dynamic relationship graphs using AWS Neptune. Tracks co-play frequency, win rates, and synergies.</p>
+                
+                <div class="demo-controls">
+                    <input type="text" id="playerInput1" placeholder="Enter Player ID" class="input-field">
+                    <button onclick="runAgent('social_graph')" class="btn-primary">Build Graph</button>
+                </div>
+                
+                <div class="demo-step">
+                    <div class="step-number">1</div>
+                    <span>Query Neptune for player relationships</span>
+                    <span class="step-status pending" id="step1-1">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">2</div>
+                    <span>Calculate co-play frequency</span>
+                    <span class="step-status pending" id="step1-2">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">3</div>
+                    <span>Build network topology</span>
+                    <span class="step-status pending" id="step1-3">Pending</span>
+                </div>
+                
+                <div id="output1" class="demo-output" style="margin-top: 20px;">
+                    <pre>Output will appear here...</pre>
+                </div>
+                
+                <div id="graphViz1" style="height: 400px; margin-top: 20px;"></div>
+            </section>
+
+            <!-- Agent 2: Chemistry Analyst Agent -->
+            <section class="agent-demo-card" id="agent2">
+                <h2>2. Chemistry Analyst Agent (Synergy Quantifier)</h2>
+                <p>Uses Graph Neural Networks to quantify synergy. Detects hidden strengths and friction zones.</p>
+                
+                <div class="demo-controls">
+                    <button onclick="runAgent('chemistry')" class="btn-primary">Analyze Chemistry</button>
+                </div>
+                
+                <div class="demo-step">
+                    <div class="step-number">1</div>
+                    <span>Prepare graph tensors for GNN</span>
+                    <span class="step-status pending" id="step2-1">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">2</div>
+                    <span>Run GNN inference on SageMaker</span>
+                    <span class="step-status pending" id="step2-2">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">3</div>
+                    <span>Identify strong pairs and friction zones</span>
+                    <span class="step-status pending" id="step2-3">Pending</span>
+                </div>
+                
+                <div id="output2" class="demo-output" style="margin-top: 20px;">
+                    <pre>Output will appear here...</pre>
+                </div>
+                
+                <canvas id="chemistryChart" style="margin-top: 20px; height: 300px;"></canvas>
+            </section>
+
+            <!-- Agent 3: Meta Analyst Agent -->
+            <section class="agent-demo-card" id="agent3">
+                <h2>3. Meta Analyst Agent (Meta Tracker)</h2>
+                <p>Processes patch data using AWS Glue and Athena. Links performance to meta shifts.</p>
+                
+                <div class="demo-controls">
+                    <select id="patchSelect" class="select-field">
+                        <option value="14.21">Patch 14.21</option>
+                        <option value="14.20">Patch 14.20</option>
+                        <option value="14.19">Patch 14.19</option>
+                    </select>
+                    <button onclick="runAgent('meta')" class="btn-primary">Analyze Meta</button>
+                </div>
+                
+                <div class="demo-step">
+                    <div class="step-number">1</div>
+                    <span>Execute Athena query for patch data</span>
+                    <span class="step-status pending" id="step3-1">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">2</div>
+                    <span>Enrich with patch metadata from S3</span>
+                    <span class="step-status pending" id="step3-2">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">3</div>
+                    <span>Calculate meta impact scores</span>
+                    <span class="step-status pending" id="step3-3">Pending</span>
+                </div>
+                
+                <div id="output3" class="demo-output" style="margin-top: 20px;">
+                    <pre>Output will appear here...</pre>
+                </div>
+            </section>
+
+            <!-- Agent 4: Adaptation Agent -->
+            <section class="agent-demo-card" id="agent4">
+                <h2>4. Adaptation Agent (Player/Team Adaptation Modeler)</h2>
+                <p>Uses SageMaker Forecast to model learning curves. Quantifies adaptation speed across patches.</p>
+                
+                <div class="demo-controls">
+                    <button onclick="runAgent('adaptation')" class="btn-primary">Calculate Adaptation</button>
+                </div>
+                
+                <div class="demo-step">
+                    <div class="step-number">1</div>
+                    <span>Calculate patch transitions</span>
+                    <span class="step-status pending" id="step4-1">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">2</div>
+                    <span>Measure adaptation latency</span>
+                    <span class="step-status pending" id="step4-2">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">3</div>
+                    <span>Generate adaptation insights</span>
+                    <span class="step-status pending" id="step4-3">Pending</span>
+                </div>
+                
+                <div id="output4" class="demo-output" style="margin-top: 20px;">
+                    <pre>Output will appear here...</pre>
+                </div>
+                
+                <canvas id="adaptationChart" style="margin-top: 20px; height: 300px;"></canvas>
+            </section>
+
+            <!-- Agent 5: Compatibility Agent -->
+            <section class="agent-demo-card" id="agent5">
+                <h2>5. Compatibility Agent (Predictive Recommender)</h2>
+                <p>Suggests optimal compositions using SageMaker and Bedrock. Predicts future duo/team performance.</p>
+                
+                <div class="demo-controls">
+                    <button onclick="runAgent('compatibility')" class="btn-primary">Generate Predictions</button>
+                </div>
+                
+                <div class="demo-step">
+                    <div class="step-number">1</div>
+                    <span>Load synergy matrix</span>
+                    <span class="step-status pending" id="step5-1">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">2</div>
+                    <span>Generate composition candidates</span>
+                    <span class="step-status pending" id="step5-2">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">3</div>
+                    <span>Score with meta alignment</span>
+                    <span class="step-status pending" id="step5-3">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">4</div>
+                    <span>Generate AI reasoning via Bedrock</span>
+                    <span class="step-status pending" id="step5-4">Pending</span>
+                </div>
+                
+                <div id="output5" class="demo-output" style="margin-top: 20px;">
+                    <pre>Output will appear here...</pre>
+                </div>
+            </section>
+
+            <!-- Agent 6: Storyteller Agent -->
+            <section class="agent-demo-card" id="agent6">
+                <h2>6. Storyteller Agent (Generative Insight Narrator)</h2>
+                <p>Uses AWS Bedrock Claude to generate natural language summaries and narratives.</p>
+                
+                <div class="demo-controls">
+                    <select id="insightType" class="select-field">
+                        <option value="synergy">Synergy Narrative</option>
+                        <option value="adaptation">Adaptation Story</option>
+                        <option value="meta">Meta Evolution</option>
+                        <option value="season">Season Recap</option>
+                    </select>
+                    <button onclick="runAgent('storyteller')" class="btn-primary">Generate Narrative</button>
+                </div>
+                
+                <div class="demo-step">
+                    <div class="step-number">1</div>
+                    <span>Prepare context and data</span>
+                    <span class="step-status pending" id="step6-1">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">2</div>
+                    <span>Call Bedrock Claude API</span>
+                    <span class="step-status pending" id="step6-2">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">3</div>
+                    <span>Format narrative response</span>
+                    <span class="step-status pending" id="step6-3">Pending</span>
+                </div>
+                
+                <div id="output6" class="demo-output" style="margin-top: 20px;">
+                    <pre>Output will appear here...</pre>
+                </div>
+            </section>
+
+            <!-- Agent 7: Visualizer Agent -->
+            <section class="agent-demo-card" id="agent7">
+                <h2>7. Visualizer Agent (Insight Dashboard & Graph UI)</h2>
+                <p>Creates interactive dashboards using QuickSight and D3.js visualizations.</p>
+                
+                <div class="demo-controls">
+                    <select id="vizType" class="select-field">
+                        <option value="synergy">Synergy Network</option>
+                        <option value="heatmap">Adaptation Heatmap</option>
+                        <option value="timeline">Patch Timeline</option>
+                        <option value="composition">Composition Chart</option>
+                    </select>
+                    <button onclick="runAgent('visualizer')" class="btn-primary">Create Visualization</button>
+                </div>
+                
+                <div class="demo-step">
+                    <div class="step-number">1</div>
+                    <span>Prepare visualization data</span>
+                    <span class="step-status pending" id="step7-1">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">2</div>
+                    <span>Format for D3.js/Chart.js</span>
+                    <span class="step-status pending" id="step7-2">Pending</span>
+                </div>
+                <div class="demo-step">
+                    <div class="step-number">3</div>
+                    <span>Render interactive visualization</span>
+                    <span class="step-status pending" id="step7-3">Pending</span>
+                </div>
+                
+                <div id="output7" class="demo-output" style="margin-top: 20px;">
+                    <pre>Output will appear here...</pre>
+                </div>
+                
+                <div id="vizCanvas" style="height: 500px; margin-top: 20px; border: 1px solid var(--border-color); border-radius: 8px;"></div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 SynergyScope | Interactive Demo Mode</p>
+        </footer>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/visualizations.js"></script>
+    <script src="/static/js/demo.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<!-- # File: frontend/templates/synergy_insights.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Synergy Insights - SynergyScope</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Synergy Insights</h1>
+            <nav class="nav-menu">
+                <a href="/" class="nav-link">Dashboard</a>
+                <a href="/synergy_insights.html" class="nav-link active">Synergy</a>
+            </nav>
+        </header>
+        <main>
+            <section class="page-section">
+                <h2>Player Synergy Network</h2>
+                <div id="synergyGraph" style="height: 600px;"></div>
+            </section>
+            <section class="page-section">
+                <h2>Top Synergy Pairs</h2>
+                <div id="synergyTable"></div>
+            </section>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="/static/js/synergy_graph.js"></script>
+</body>
+</html>
