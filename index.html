@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynergyScope - Multi-Agent AI Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --primary: #45b3e0;
+            --secondary: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #45b3e0 0%, #3a9dc9 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .main-container {
+            background: var(--light-bg);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #45b3e0 0%, #3a9dc9 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-weight: 700;
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .nav-tabs {
+            background: white;
+            padding: 15px 15px 0 15px;
+            border-bottom: 3px solid #e2e8f0;
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #64748b;
+            font-weight: 600;
+            border: none;
+            padding: 12px 20px;
+            margin-right: 5px;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: var(--primary);
+            background: #f1f5f9;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary);
+            background: #e0f2fe;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .tab-content {
+            padding: 30px;
+            background: var(--light-bg);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #45b3e0 0%, #3a9dc9 100%);
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 15px 20px;
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .metric-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-analyze {
+            background: linear-gradient(135deg, #45b3e0 0%, #3a9dc9 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-analyze:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(69, 179, 224, 0.4);
+            color: white;
+        }
+        
+        .synergy-node {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .synergy-node:hover {
+            stroke-width: 3px;
+        }
+        
+        .timeline-item {
+            padding: 15px;
+            border-left: 3px solid var(--primary);
+            margin-left: 20px;
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .timeline-date {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .agent-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 3px;
+        }
+        
+        .agent-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .agent-processing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .chat-container {
+            height: 350px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        
+        .chat-user {
+            background: #e0f2fe;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .chat-bot {
+            background: #f1f5f9;
+        }
+        
+        .heatmap-cell {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .heatmap-cell:hover {
+            stroke: #000;
+            stroke-width: 2px;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .insight-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 20px;
+            margin: 5px;
+            font-weight: 600;
+        }
+        
+        .network-svg {
+            background: white;
+            border-radius: 12px;
+        }
+        
+        .stat-bar {
+            height: 30px;
+            background: #e2e8f0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .stat-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .chart-container-small {
+            height: 250px;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container-fluid">
+        <div class="main-container">
+            <div class="header">
+                <h1>SynergyScope</h1>
+                <p>Multi-Agent AI for Esports Performance Development</p>
+            </div>
+            
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#synergy">Synergy Analysis</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#meta">Meta Evolution</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#predictions">Predictions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#agents">Multi-Agent System</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#chat">Meta Chat</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#recap">Season Recap</a>
+                </li>
+            </ul>
+            
+            <div class="tab-content">
+                <!-- Dashboard Tab -->
+                <div id="dashboard" class="tab-pane fade show active">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Team Performance Metrics</div>
+                                <div class="card-body">
+                                    <div class="chart-container-small">
+                                        <canvas id="metricsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Performance Evolution - AWS SageMaker Time-Series Analysis</div>
+                                <div class="card-body">
+                                    <div class="chart-container-small">
+                                        <canvas id="performanceChart"></canvas>
+                                    </div>
+                                    <button class="btn btn-analyze mt-3" onclick="regeneratePerformance()">Regenerate Analysis</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">Team Growth Insights - Bedrock Narrative Engine</div>
+                                <div class="card-body">
+                                    <div id="narrativeInsights" style="min-height: 100px;"></div>
+                                    <button class="btn btn-analyze mt-3" onclick="generateNarrative()">Generate New Insights</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Synergy Analysis Tab -->
+                <div id="synergy" class="tab-pane fade">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Synergy Distribution - GNN Model Output</div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="synergyDistChart"></canvas>
+                                    </div>
+                                    <button class="btn btn-analyze mt-3" onclick="analyzeSynergy()">Run GNN Analysis</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Duo Performance Matrix</div>
+                                <div class="card-body">
+                                    <div id="heatmapContainer" style="height: 300px; display: flex; align-items: center; justify-content: center;"></div>
+                                    <button class="btn btn-analyze mt-3" onclick="generateHeatmap()">Update Heatmap</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Top Synergy Pairs - Lambda Processing Results</div>
+                                <div class="card-body">
+                                    <div id="synergyPairs" style="min-height: 100px;"></div>
+                                    <button class="btn btn-analyze mt-3" onclick="findBestPairs()">Find Optimal Pairs</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Champion Pool Synergy Analysis</div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="championSynergyChart"></canvas>
+                                    </div>
+                                    <button class="btn btn-analyze mt-3" onclick="analyzeChampions()">Analyze Champion Mastery Data</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Meta Evolution Tab -->
+                <div id="meta" class="tab-pane fade">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">Patch Evolution Timeline - AWS Glue + Athena Processing</div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="patchTimelineChart"></canvas>
+                                    </div>
+                                    <button class="btn btn-analyze mt-3" onclick="analyzePatchImpact()">Analyze Patch Impact</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Adaptation Heatmap - SageMaker Forecast Output</div>
+                                <div class="card-body">
+                                    <div id="adaptationHeatmap" style="height: 320px; overflow: auto;"></div>
+                                    <button class="btn btn-analyze mt-3" onclick="generateAdaptationMap()">Generate Adaptation Map</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Meta Shift Events</div>
+                                <div class="card-body">
+                                    <div id="metaTimeline" style="min-height: 100px; max-height: 320px; overflow-y: auto;"></div>
+                                    <button class="btn btn-analyze mt-3" onclick="loadMetaEvents()">Load Recent Events</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">Performance by Meta Phase - Multi-Agent Collaboration</div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="metaPhaseChart"></canvas>
+                                    </div>
+                                    <button class="btn btn-analyze mt-3" onclick="analyzeMetaPhases()">Analyze Meta Phases</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Predictions Tab -->
+                <div id="predictions" class="tab-pane fade">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">Win Rate Predictions - SageMaker Recommender System</div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="predictionChart"></canvas>
+                                    </div>
+                                    <button class="btn btn-analyze mt-3" onclick="generatePredictions()">Generate Predictions</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Recommended Compositions</div>
+                                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                                    <div id="recommendations"></div>
+                                    <button class="btn btn-analyze mt-3 w-100" onclick="updateRecommendations()">Update Recommendations</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Upcoming Patch Impact Forecast - Meta-Adaptive Engine</div>
+                                <div class="card-body">
+                                    <div id="patchForecast" style="min-height: 100px;"></div>
+                                    <button class="btn btn-analyze mt-3" onclick="forecastPatch()">Forecast Next Patch</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Social Comparison - Match-v5 API Analysis</div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="socialComparisonChart"></canvas>
+                                    </div>
+                                    <button class="btn btn-analyze mt-3" onclick="comparePeers()">Compare with Peers</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Multi-Agent System Tab -->
+                <div id="agents" class="tab-pane fade">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">Agent Collaboration Workflow</div>
+                                <div class="card-body">
+                                    <svg id="agentWorkflow" width="100%" height="400"></svg>
+                                    <button class="btn btn-analyze mt-3" onclick="runAgentPipeline()">Execute Multi-Agent Pipeline</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">AWS Infrastructure Status</div>
+                                <div class="card-body">
+                                    <div id="awsStatus"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Agent Processing Metrics</div>
+                                <div class="card-body">
+                                    <canvas id="agentMetricsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">Data Pipeline - API Gateway to QuickSight</div>
+                                <div class="card-body">
+                                    <div id="dataPipeline"></div>
+                                    <button class="btn btn-analyze mt-3" onclick="refreshPipeline()">Refresh Pipeline Status</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Meta Chat Tab -->
+                <div id="chat" class="tab-pane fade">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">Meta Chat Agent - Bedrock Conversational AI</div>
+                                <div class="card-body">
+                                    <div class="chat-container" id="chatContainer"></div>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="chatInput" placeholder="Ask about meta, patches, or team performance...">
+                                        <button class="btn btn-analyze" onclick="sendMessage()">Send</button>
+                                    </div>
+                                    <div class="mt-3">
+                                        <small>Quick questions:</small>
+                                        <button class="btn btn-sm btn-outline-primary m-1" onclick="askQuestion('How did we adapt to the latest ADC patch?')">ADC Patch Adaptation</button>
+                                        <button class="btn btn-sm btn-outline-primary m-1" onclick="askQuestion('Which duo performs best in the current meta?')">Best Duo Analysis</button>
+                                        <button class="btn btn-sm btn-outline-primary m-1" onclick="askQuestion('What are our team strengths this season?')">Team Strengths</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Season Recap Tab -->
+                <div id="recap" class="tab-pane fade">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">Season Highlights - AI-Generated Recap</div>
+                                <div class="card-body text-center">
+                                    <div id="videoRecap" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 400px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; margin-bottom: 20px;">
+                                        Season Growth Highlights Loading...
+                                    </div>
+                                    <button class="btn btn-analyze" onclick="generateRecap()">Generate Season Recap</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Most Played Champions</div>
+                                <div class="card-body">
+                                    <canvas id="topChampionsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Biggest Improvements</div>
+                                <div class="card-body">
+                                    <div id="improvementsList"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Shareable Moments</div>
+                                <div class="card-body">
+                                    <div id="shareableMoments"></div>
+                                    <button class="btn btn-analyze mt-3 w-100" onclick="shareToSocial()">Share to Social Media</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">Team Growth Report - Auto-Generated Analytics</div>
+                                <div class="card-body">
+                                    <div id="growthReport"></div>
+                                    <button class="btn btn-analyze mt-3" onclick="generateGrowthReport()">Generate Full Report</button>
+                                    <button class="btn btn-outline-primary mt-3 ms-2" onclick="exportReport()">Export to PDF</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Performance Chart - now smaller and maintainable aspect ratio
+        const performanceCtx = document.getElementById('performanceChart');
+        let performanceChart = new Chart(performanceCtx, {
+            type: 'line',
+            data: {
+                labels: ['Patch 14.10', '14.11', '14.12', '14.13', '14.14', '14.15', '14.16', '14.17'],
+                datasets: [{
+                    label: 'Win Rate %',
+                    data: [52, 48, 54, 58, 62, 59, 65, 68],
+                    borderColor: '#45b3e0',
+                    backgroundColor: 'rgba(69, 179, 224, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Adaptation Score',
+                    data: [45, 52, 58, 64, 70, 73, 78, 82],
+                    borderColor: '#06b6d4',
+                    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    y: { beginAtZero: true, max: 100 }
+                }
+            }
+        });
+        
+        // New Metrics Chart for dashboard
+        const metricsCtx = document.getElementById('metricsChart');
+        let metricsChart = new Chart(metricsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Synergy Score', 'Adaptation Speed', 'Patches to Mastery', 'Matches Analyzed'],
+                datasets: [{
+                    label: 'Metrics',
+                    data: [87.3, 14.2, 1.8, 234],
+                    backgroundColor: ['#45b3e0', '#10b981', '#f59e0b', '#06b6d4']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
+        
+        // Synergy Network
+        function createSynergyNetwork() {
+            const container = document.getElementById('synergyNetwork');
+            const width = container.clientWidth || 350;
+            const height = 300;
+            const svg = d3.select('#synergyNetwork')
+                .attr('width', width)
+                .attr('height', height);
+            svg.selectAll('*').remove();
+            
+            const nodes = [
+                { id: 'Current', x: width/2, y: height/2, color: '#667eea' },
+                { id: 'PlayerX', x: width/2 - 80, y: height/2 - 60, color: '#10b981' },
+                { id: 'PlayerY', x: width/2 + 80, y: height/2 - 60, color: '#f59e0b' },
+                { id: 'PlayerZ', x: width/2 - 80, y: height/2 + 60, color: '#ef4444' },
+                { id: 'PlayerW', x: width/2 + 80, y: height/2 + 60, color: '#06b6d4' }
+            ];
+            
+            const links = [
+                { source: 0, target: 1, strength: 0.9 },
+                { source: 0, target: 2, strength: 0.7 },
+                { source: 0, target: 3, strength: 0.6 },
+                { source: 0, target: 4, strength: 0.8 }
+            ];
+            
+            links.forEach(link => {
+                const source = nodes[link.source];
+                const target = nodes[link.target];
+                svg.append('line')
+                    .attr('x1', source.x)
+                    .attr('y1', source.y)
+                    .attr('x2', target.x)
+                    .attr('y2', target.y)
+                    .attr('stroke', '#cbd5e1')
+                    .attr('stroke-width', link.strength * 4);
+            });
+            
+            nodes.forEach(node => {
+                const g = svg.append('g')
+                    .attr('class', 'synergy-node')
+                    .attr('transform', `translate(${node.x}, ${node.y})`);
+                
+                g.append('circle')
+                    .attr('r', 25)
+                    .attr('fill', node.color)
+                    .attr('stroke', 'white')
+                    .attr('stroke-width', 3);
+                
+                g.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', 40)
+                    .attr('font-size', '12px')
+                    .attr('font-weight', 'bold')
+                    .attr('fill', '#334155')
+                    .text(node.id);
+            });
+        }
+        
+        setTimeout(() => createSynergyNetwork(), 100);
+        
+        function refreshNetwork() {
+            createSynergyNetwork();
+        }
+        
+        // Narrative Insights - start empty
+        function generateNarrative() {
+            const insights = [
+                "Team synergy with PlayerX peaked in patch 14.13, driven by shared control-style junglers and scaling ADC compositions. The Chemistry Analyst detected a 23% increase in coordinated plays.",
+                "After patch 14.16, when assassins fell out of favor, the team successfully shifted toward objective-based compositions faster than 80% of similar MMR teams. Meta Analyst tracked this transition across 47 matches.",
+                "Current roster and PlayerZ struggle after major jungle reworks. The team's adaptation latency is 2.3 patches slower than peers. The Adaptation Agent recommends diversifying champion pools by 15%.",
+                "This season, the squad became a patch-to-patch powerhouse. From struggling in early-mid meta transitions to mastering adaptive drafts by season's end. SynergyScope captured growth as a team that learns faster than the game itself.",
+                "The trio performs best when pairing adaptive champions with fast learners. The Forecasting Agent identified 3 synergy archetypes that maximize win rate by 18%."
+            ];
+            
+            const container = document.getElementById('narrativeInsights');
+            container.innerHTML = '';
+            insights.forEach((insight, i) => {
+                setTimeout(() => {
+                    const badge = document.createElement('div');
+                    badge.className = 'insight-badge';
+                    badge.style.animation = 'fadeIn 0.5s';
+                    badge.innerHTML = insight;
+                    container.appendChild(badge);
+                }, i * 300);
+            });
+        }
+        
+        // Synergy Distribution Chart
+        const synergyDistCtx = document.getElementById('synergyDistChart');
+        let synergyDistChart;
+        
+        function initSynergyDistChart() {
+            if (synergyDistChart) synergyDistChart.destroy();
+            synergyDistChart = new Chart(synergyDistCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Mechanical Sync', 'Draft Coordination', 'Macro Decisions', 'Communication', 'Role Synergy', 'Champion Pool'],
+                    datasets: [{
+                        label: 'Current + PlayerX',
+                        data: [92, 85, 78, 88, 95, 82],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)'
+                    }, {
+                        label: 'Current + PlayerY',
+                        data: [78, 72, 85, 75, 68, 88],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        }
+        
+        setTimeout(() => initSynergyDistChart(), 100);
+        
+        // Heatmap Generation
+        function generateHeatmap() {
+            const container = document.getElementById('heatmapContainer');
+            container.innerHTML = '';
+            const players = ['Current', 'PlayerX', 'PlayerY', 'PlayerZ', 'PlayerW'];
+            const cellSize = 55;
+            
+            const svg = d3.create('svg')
+                .attr('width', cellSize * 5 + 50)
+                .attr('height', cellSize * 5 + 50);
+            
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    if (i === j) {
+                        svg.append('rect')
+                            .attr('x', j * cellSize + 40)
+                            .attr('y', i * cellSize + 30)
+                            .attr('width', cellSize)
+                            .attr('height', cellSize)
+                            .attr('fill', '#e2e8f0')
+                            .attr('stroke', '#fff')
+                            .attr('stroke-width', 2);
+                        continue;
+                    }
+                    const value = Math.floor(Math.random() * 40) + 55;
+                    const color = d3.interpolateRgb('#fef3c7', '#10b981')(value / 100);
+                    
+                    svg.append('rect')
+                        .attr('class', 'heatmap-cell')
+                        .attr('x', j * cellSize + 40)
+                        .attr('y', i * cellSize + 30)
+                        .attr('width', cellSize)
+                        .attr('height', cellSize)
+                        .attr('fill', color)
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 2);
+                    
+                    svg.append('text')
+                        .attr('x', j * cellSize + cellSize/2 + 40)
+                        .attr('y', i * cellSize + cellSize/2 + 30)
+                        .attr('text-anchor', 'middle')
+                        .attr('dy', '0.35em')
+                        .attr('font-weight', 'bold')
+                        .attr('fill', value > 70 ? 'white' : '#334155')
+                        .text(value + '%');
+                }
+            }
+            
+            players.forEach((player, i) => {
+                svg.append('text')
+                    .attr('x', i * cellSize + cellSize/2 + 40)
+                    .attr('y', 20)
+                    .attr('text-anchor', 'middle')
+                    .attr('font-size', '11px')
+                    .attr('font-weight', 'bold')
+                    .text(player);
+                
+                svg.append('text')
+                    .attr('x', 30)
+                    .attr('y', i * cellSize + cellSize/2 + 30)
+                    .attr('text-anchor', 'end')
+                    .attr('dy', '0.35em')
+                    .attr('font-size', '11px')
+                    .attr('font-weight', 'bold')
+                    .text(player);
+            });
+            
+            container.appendChild(svg.node());
+        }
+        
+        setTimeout(() => generateHeatmap(), 100);
+        
+        // Synergy Pairs - start empty
+        function findBestPairs() {
+            const pairs = [
+                { duo: 'Current + PlayerX', winRate: 68.5, games: 87, synergy: 92 },
+                { duo: 'Current + PlayerW', winRate: 64.2, games: 73, synergy: 85 },
+                { duo: 'Current + PlayerY', winRate: 61.8, games: 65, synergy: 78 },
+                { duo: 'PlayerX + PlayerW', winRate: 59.3, games: 54, synergy: 72 },
+                { duo: 'Current + PlayerZ', winRate: 57.1, games: 49, synergy: 68 }
+            ];
+            
+            const container = document.getElementById('synergyPairs');
+            container.innerHTML = '';
+            
+            pairs.forEach(pair => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '15px';
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>${pair.duo}</strong>
+                        <span style="color: #10b981; font-weight: 600;">${pair.winRate}% WR</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-fill" style="width: ${pair.synergy}%">${pair.synergy}%</div>
+                    </div>
+                    <small style="color: #64748b;">${pair.games} games analyzed</small>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        // Champion Synergy Chart
+        const championSynergyCtx = document.getElementById('championSynergyChart');
+        let championSynergyChart;
+        
+        function initChampionSynergyChart() {
+            if (championSynergyChart) championSynergyChart.destroy();
+            championSynergyChart = new Chart(championSynergyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Thresh + Jinx', 'Lee Sin + Orianna', 'Braum + Ashe', 'Jarvan + Yasuo', 'Lulu + Kog\'Maw'],
+                    datasets: [{
+                        label: 'Synergy Score',
+                        data: [94, 88, 85, 92, 87],
+                        backgroundColor: ['#667eea', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    indexAxis: 'y',
+                    scales: {
+                        x: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        }
+        
+        setTimeout(() => initChampionSynergyChart(), 100);
+        
+        // Patch Timeline Chart
+        const patchTimelineCtx = document.getElementById('patchTimelineChart');
+        let patchTimelineChart;
+        
+        function initPatchTimelineChart() {
+            if (patchTimelineChart) patchTimelineChart.destroy();
+            patchTimelineChart = new Chart(patchTimelineCtx, {
+                type: 'line',
+                data: {
+                    labels: ['14.10', '14.11', '14.12', '14.13', '14.14', '14.15', '14.16', '14.17', '14.18', '14.19'],
+                    datasets: [{
+                        label: 'Your Team Performance',
+                        data: [52, 48, 54, 58, 62, 59, 65, 68, 70, 73],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Average Team (Same MMR)',
+                        data: [55, 54, 56, 57, 58, 59, 60, 61, 62, 63],
+                        borderColor: '#94a3b8',
+                        backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        }
+        
+        setTimeout(() => initPatchTimelineChart(), 100);
+        
+        // Adaptation Heatmap
+        function generateAdaptationMap() {
+            const container = document.getElementById('adaptationHeatmap');
+            container.innerHTML = '<h6 style="margin-bottom: 15px;">Patch Adaptation Speed (Days to 90% Performance)</h6>';
+            
+            const patches = ['14.13', '14.14', '14.15', '14.16', '14.17'];
+            const players = ['Current', 'PlayerX', 'PlayerY', 'PlayerZ', 'PlayerW'];
+            const cellSize = 52;
+            
+            const svg = d3.create('svg')
+                .attr('width', cellSize * 5 + 100)
+                .attr('height', cellSize * 5 + 50);
+            
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    const days = Math.floor(Math.random() * 15) + 3;
+                    const color = d3.interpolateRgb('#10b981', '#ef4444')(days / 18);
+                    
+                    svg.append('rect')
+                        .attr('class', 'heatmap-cell')
+                        .attr('x', j * cellSize + 80)
+                        .attr('y', i * cellSize + 30)
+                        .attr('width', cellSize)
+                        .attr('height', cellSize)
+                        .attr('fill', color)
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 2);
+                    
+                    svg.append('text')
+                        .attr('x', j * cellSize + cellSize/2 + 80)
+                        .attr('y', i * cellSize + cellSize/2 + 30)
+                        .attr('text-anchor', 'middle')
+                        .attr('dy', '0.35em')
+                        .attr('font-weight', 'bold')
+                        .attr('font-size', '13px')
+                        .attr('fill', 'white')
+                        .text(days + 'd');
+                }
+            }
+            
+            patches.forEach((patch, i) => {
+                svg.append('text')
+                    .attr('x', i * cellSize + cellSize/2 + 80)
+                    .attr('y', 15)
+                    .attr('text-anchor', 'middle')
+                    .attr('font-size', '11px')
+                    .attr('font-weight', 'bold')
+                    .text(patch);
+            });
+            
+            players.forEach((player, i) => {
+                svg.append('text')
+                    .attr('x', 75)
+                    .attr('y', i * cellSize + cellSize/2 + 30)
+                    .attr('text-anchor', 'end')
+                    .attr('dy', '0.35em')
+                    .attr('font-size', '11px')
+                    .attr('font-weight', 'bold')
+                    .text(player);
+            });
+            
+            container.appendChild(svg.node());
+        }
+        
+        setTimeout(() => generateAdaptationMap(), 100);
+        
+        // Meta Timeline
+        function loadMetaEvents() {
+            const events = [
+                { date: 'Patch 14.17', event: 'Tank meta emerges', impact: 'Your team adapted in 5 days' },
+                { date: 'Patch 14.16', event: 'Assassin nerfs', impact: 'Win rate increased by 12%' },
+                { date: 'Patch 14.15', event: 'ADC item changes', impact: 'Took 8 days to adjust' },
+                { date: 'Patch 14.13', event: 'Jungle rework', impact: 'Synergy with PlayerX peaked' },
+                { date: 'Patch 14.11', event: 'Support buffs', impact: 'Win rate dip recovered in 4 days' }
+            ];
+            
+            const container = document.getElementById('metaTimeline');
+            container.innerHTML = '';
+            
+            events.forEach(event => {
+                const div = document.createElement('div');
+                div.className = 'timeline-item';
+                div.innerHTML = `
+                    <div class="timeline-date">${event.date}</div>
+                    <strong>${event.event}</strong>
+                    <p style="margin: 5px 0 0 0; color: #64748b;">${event.impact}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        loadMetaEvents();
+        
+        // Meta Phase Chart
+        const metaPhaseCtx = document.getElementById('metaPhaseChart');
+        let metaPhaseChart;
+        
+        function initMetaPhaseChart() {
+            if (metaPhaseChart) metaPhaseChart.destroy();
+            metaPhaseChart = new Chart(metaPhaseCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Tank Meta', 'Assassin Meta', 'Enchanter Meta', 'Bruiser Meta', 'Poke Meta'],
+                    datasets: [{
+                        label: 'Your Win Rate %',
+                        data: [72, 48, 65, 58, 62],
+                        backgroundColor: '#667eea'
+                    }, {
+                        label: 'Expected Win Rate %',
+                        data: [55, 55, 55, 55, 55],
+                        backgroundColor: '#cbd5e1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        }
+        
+        setTimeout(() => initMetaPhaseChart(), 100);
+        
+        // Prediction Chart
+        const predictionCtx = document.getElementById('predictionChart');
+        let predictionChart;
+        
+        function initPredictionChart() {
+            if (predictionChart) predictionChart.destroy();
+            predictionChart = new Chart(predictionCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Current', 'Next Week', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Tank Supports + Scaling ADC',
+                        data: [68, 72, 75, 76, 78],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Enchanters + Control Mage',
+                        data: [61, 63, 64, 65, 66],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Engage + Burst Mage',
+                        data: [57, 59, 60, 62, 63],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        y: { beginAtZero: false, min: 50, max: 80 }
+                    }
+                }
+            });
+        }
+        
+        setTimeout(() => initPredictionChart(), 100);
+        
+        // Recommendations
+        function updateRecommendations() {
+            const recommendations = [
+                { comp: 'Tank Support + Scaling ADC (PlayerX)', predicted: '+12%', confidence: 94 },
+                { comp: 'Trio: Current + PlayerX + PlayerW', predicted: '+18%', confidence: 89 },
+                { comp: 'Engage Support + Control Mage (PlayerY)', predicted: '+8%', confidence: 82 },
+                { comp: 'Full Team: Adaptive Draft Strategy', predicted: '+15%', confidence: 91 }
+            ];
+            
+            const container = document.getElementById('recommendations');
+            container.innerHTML = '';
+            
+            recommendations.forEach(rec => {
+                const div = document.createElement('div');
+                div.style.padding = '12px';
+                div.style.background = '#f1f5f9';
+                div.style.borderRadius = '8px';
+                div.style.marginBottom = '10px';
+                div.innerHTML = `
+                    <strong style="color: #667eea;">${rec.comp}</strong>
+                    <div style="margin-top: 8px;">
+                        <span style="color: #10b981; font-weight: 600; font-size: 1.2rem;">${rec.predicted}</span>
+                        <span style="color: #64748b; margin-left: 10px;">win rate increase</span>
+                    </div>
+                    <div style="margin-top: 5px; font-size: 0.85rem; color: #64748b;">
+                        Confidence: ${rec.confidence}%
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        updateRecommendations();
+        
+        // Patch Forecast - start empty
+        function forecastPatch() {
+            const forecast = {
+                patch: '14.21',
+                metaShift: 'Tank support dominance expected',
+                yourImpact: [
+                    'Tank support pool will gain 15% effectiveness',
+                    'PlayerX ADC synergy projected at 94% (current: 82%)',
+                    'Recommend 3 additional tank support practice sessions',
+                    'Expected adaptation time: 3-4 days based on historical patterns'
+                ],
+                teamComps: [
+                    'Tank + Scaling ADC compositions: +22% effectiveness',
+                    'Engage-heavy team fights: +18% win rate',
+                    'Objective control strategies: +12% success rate'
+                ]
+            };
+            
+            const container = document.getElementById('patchForecast');
+            container.innerHTML = `
+                <h5 style="color: #45b3e0;">Patch ${forecast.patch} Forecast</h5>
+                <div style="padding: 15px; background: #e0f2fe; border-radius: 8px; margin: 15px 0;">
+                    <strong>Meta Prediction:</strong> ${forecast.metaShift}
+                </div>
+                <div style="margin: 20px 0;">
+                    <h6>Impact on Team Performance:</h6>
+                    ${forecast.yourImpact.map(impact => `
+                        <div style="padding: 10px; background: white; border-radius: 8px; margin: 8px 0; border-left: 3px solid #10b981;">
+                            ${impact}
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="margin: 20px 0;">
+                    <h6>Recommended Team Compositions:</h6>
+                    ${forecast.teamComps.map(comp => `
+                        <div style="padding: 10px; background: white; border-radius: 8px; margin: 8px 0; border-left: 3px solid #06b6d4;">
+                            ${comp}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // Social Comparison Chart
+        const socialComparisonCtx = document.getElementById('socialComparisonChart');
+        let socialComparisonChart;
+        
+        function initSocialComparisonChart() {
+            if (socialComparisonChart) socialComparisonChart.destroy();
+            socialComparisonChart = new Chart(socialComparisonCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Win Rate', 'Adaptation Speed', 'Synergy Quality', 'Champion Pool', 'Meta Awareness', 'Team Coordination'],
+                    datasets: [{
+                        label: 'Current Team',
+                        data: [78, 82, 87, 75, 85, 90],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)'
+                    }, {
+                        label: 'Friends Average',
+                        data: [72, 68, 75, 78, 70, 73],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)'
+                    }, {
+                        label: 'Same MMR Average',
+                        data: [75, 72, 78, 74, 76, 77],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        }
+        
+        setTimeout(() => initSocialComparisonChart(), 100);
+        
+        // Agent Workflow
+        function createAgentWorkflow() {
+            const container = document.getElementById('agentWorkflow');
+            const width = container.clientWidth || 700;
+            const height = 400;
+            const svg = d3.select('#agentWorkflow')
+                .attr('width', width)
+                .attr('height', height);
+            svg.selectAll('*').remove();
+            
+            const agents = [
+                { name: 'Graph Builder', x: 100, y: 50, color: '#667eea', status: 'Processing match-v5 data' },
+                { name: 'Chemistry Analyst', x: 300, y: 50, color: '#10b981', status: 'Running GNN models' },
+                { name: 'Meta Tracker', x: 500, y: 50, color: '#f59e0b', status: 'Analyzing patch 14.17' },
+                { name: 'Adaptation Agent', x: 200, y: 200, color: '#ef4444', status: 'Calculating learning curves' },
+                { name: 'Forecaster', x: 400, y: 200, color: '#06b6d4', status: 'Predicting next patch' },
+                { name: 'Storyteller', x: 300, y: 330, color: '#8b5cf6', status: 'Generating narratives' }
+            ];
+            
+            const connections = [
+                { from: 0, to: 1 }, { from: 1, to: 2 }, { from: 0, to: 3 },
+                { from: 1, to: 3 }, { from: 2, to: 4 }, { from: 3, to: 4 },
+                { from: 3, to: 5 }, { from: 4, to: 5 }
+            ];
+            
+            svg.append('defs').append('marker')
+                .attr('id', 'arrowhead')
+                .attr('markerWidth', 10)
+                .attr('markerHeight', 10)
+                .attr('refX', 8)
+                .attr('refY', 3)
+                .attr('orient', 'auto')
+                .append('polygon')
+                .attr('points', '0 0, 10 3, 0 6')
+                .attr('fill', '#cbd5e1');
+            
+            connections.forEach(conn => {
+                const from = agents[conn.from];
+                const to = agents[conn.to];
+                svg.append('line')
+                    .attr('x1', from.x)
+                    .attr('y1', from.y)
+                    .attr('x2', to.x)
+                    .attr('y2', to.y)
+                    .attr('stroke', '#cbd5e1')
+                    .attr('stroke-width', 2)
+                    .attr('marker-end', 'url(#arrowhead)');
+            });
+            
+            agents.forEach(agent => {
+                const g = svg.append('g')
+                    .attr('transform', `translate(${agent.x}, ${agent.y})`);
+                
+                g.append('circle')
+                    .attr('r', 35)
+                    .attr('fill', agent.color)
+                    .attr('stroke', 'white')
+                    .attr('stroke-width', 3);
+                
+                g.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', 55)
+                    .attr('font-size', '12px')
+                    .attr('font-weight', 'bold')
+                    .text(agent.name);
+                
+                g.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', 70)
+                    .attr('font-size', '10px')
+                    .attr('fill', '#64748b')
+                    .text(agent.status);
+            });
+        }
+        
+        setTimeout(() => createAgentWorkflow(), 100);
+        
+        // AWS Status
+        function displayAWSStatus() {
+            const services = [
+                { name: 'AWS Neptune', status: 'Active', health: 100, endpoint: 'Graph database operational' },
+                { name: 'AWS Lambda', status: 'Active', health: 100, endpoint: 'Functions processing' },
+                { name: 'AWS Glue', status: 'Active', health: 98, endpoint: 'ETL jobs running' },
+                { name: 'SageMaker', status: 'Active', health: 100, endpoint: 'Models deployed' },
+                { name: 'AWS Athena', status: 'Active', health: 100, endpoint: 'Queries executing' },
+                { name: 'Bedrock', status: 'Active', health: 100, endpoint: 'LLM generating insights' },
+                { name: 'API Gateway', status: 'Active', health: 100, endpoint: 'Endpoints responsive' },
+                { name: 'QuickSight', status: 'Active', health: 100, endpoint: 'Dashboards live' }
+            ];
+            
+            const container = document.getElementById('awsStatus');
+            container.innerHTML = '';
+            
+            services.forEach(service => {
+                const div = document.createElement('div');
+                div.style.padding = '10px';
+                div.style.background = 'white';
+                div.style.borderRadius = '8px';
+                div.style.marginBottom = '8px';
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.alignItems = 'center';
+                div.innerHTML = `
+                    <div>
+                        <strong>${service.name}</strong>
+                        <div style="font-size: 0.85rem; color: #64748b;">${service.endpoint}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="color: #10b981; font-weight: 600;">${service.status}</span>
+                        <div style="font-size: 0.85rem; color: #64748b;">${service.health}%</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        setTimeout(() => displayAWSStatus(), 100);
+        
+        // Agent Metrics Chart
+        const agentMetricsCtx = document.getElementById('agentMetricsChart');
+        let agentMetricsChart;
+        
+        function initAgentMetricsChart() {
+            if (agentMetricsChart) agentMetricsChart.destroy();
+            agentMetricsChart = new Chart(agentMetricsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Graph Builder', 'Chemistry Analyst', 'Meta Tracker', 'Adaptation Agent', 'Forecaster', 'Storyteller'],
+                    datasets: [{
+                        data: [18, 22, 15, 20, 14, 11],
+                        backgroundColor: ['#667eea', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#8b5cf6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Agent Processing Time Distribution (%)' }
+                    }
+                }
+            });
+        }
+        
+        setTimeout(() => initAgentMetricsChart(), 100);
+        
+        // Data Pipeline
+        function refreshPipeline() {
+            const steps = [
+                { step: 'API Gateway', action: 'Riot API data ingestion', status: 'Complete', time: '1.2s' },
+                { step: 'Lambda Functions', action: 'Data transformation', status: 'Complete', time: '2.8s' },
+                { step: 'S3 Storage', action: 'Raw data storage', status: 'Complete', time: '0.5s' },
+                { step: 'Glue ETL', action: 'Data processing', status: 'Complete', time: '15.3s' },
+                { step: 'Neptune Load', action: 'Graph construction', status: 'Complete', time: '8.7s' },
+                { step: 'SageMaker Training', action: 'Model updates', status: 'In Progress', time: '45.2s' },
+                { step: 'Bedrock Generation', action: 'Insight creation', status: 'Queued', time: '-' },
+                { step: 'QuickSight Refresh', action: 'Dashboard update', status: 'Queued', time: '-' }
+            ];
+            
+            const container = document.getElementById('dataPipeline');
+            container.innerHTML = '';
+            
+            steps.forEach((step, i) => {
+                const div = document.createElement('div');
+                div.style.padding = '12px';
+                div.style.background = step.status === 'Complete' ? '#d1fae5' : step.status === 'In Progress' ? '#fef3c7' : '#f1f5f9';
+                div.style.borderRadius = '8px';
+                div.style.marginBottom = '8px';
+                div.style.borderLeft = '4px solid ' + (step.status === 'Complete' ? '#10b981' : step.status === 'In Progress' ? '#f59e0b' : '#cbd5e1');
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>${i + 1}. ${step.step}</strong>
+                            <div style="font-size: 0.85rem; color: #64748b; margin-top: 3px;">${step.action}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong style="color: ${step.status === 'Complete' ? '#10b981' : step.status === 'In Progress' ? '#f59e0b' : '#64748b'};">${step.status}</strong>
+                            <div style="font-size: 0.85rem; color: #64748b;">${step.time}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        refreshPipeline();
+        
+        // Remove old refreshNetwork function reference
+        function refreshNetwork() {
+            // Function removed as network is no longer displayed
+        }
+        
+        // Chat functionality
+        const chatMessages = [];
+        
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            setTimeout(() => {
+                const response = generateChatResponse(message);
+                addChatMessage(response, 'bot');
+            }, 800);
+        }
+        
+        function addChatMessage(text, type) {
+            const container = document.getElementById('chatContainer');
+            const div = document.createElement('div');
+            div.className = `chat-message chat-${type}`;
+            div.textContent = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function generateChatResponse(question) {
+            const responses = {
+                'adc': 'After the ADC item changes in patch 14.16, your team adapted remarkably well. The Chemistry Analyst detected that you and PlayerX increased your coordination by 18% within just 5 days. Your duo win rate with scaling ADC compositions jumped from 61% to 68%. The Meta Tracker identified that your team shifted toward objective-focused play 3 days faster than 78% of similar MMR teams.',
+                'duo': 'Based on the current meta analysis, your best duo is with PlayerX using tank supports and scaling ADCs. The Forecasting Agent predicts a 94% synergy score with a projected 68.5% win rate. This combination excels in the current objective-focused meta, with your shared control-style gameplay creating 23% more coordinated plays than your other duo combinations.',
+                'strength': 'Your team\'s core strengths this season include exceptional adaptation speed (top 12% of your MMR bracket), strong duo synergy with PlayerX (92% compatibility), and excellent performance in tank-heavy metas. The Social Graph Agent identified that your team coordination improved by 34% over the season, with particular excellence in objective control and scaling compositions.'
+            };
+            
+            const lowerQ = question.toLowerCase();
+            if (lowerQ.includes('adc') || lowerQ.includes('patch')) return responses.adc;
+            if (lowerQ.includes('duo') || lowerQ.includes('best')) return responses.duo;
+            if (lowerQ.includes('strength') || lowerQ.includes('team')) return responses.strength;
+            
+            return 'The Multi-Agent system is analyzing your question. Based on 234 matches and 8 patches of data, I can provide insights on team synergy, meta adaptation, performance predictions, and more. Try asking about specific patches, duo combinations, or team strengths!';
+        }
+        
+        function askQuestion(question) {
+            document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+        
+        // Add welcome message
+        addChatMessage('Hello! I\'m the Meta Chat Agent powered by AWS Bedrock. I can help you understand your team\'s performance, synergy patterns, and meta adaptation. Ask me anything about your esports journey!', 'bot');
+        
+        // Season Recap
+        function generateRecap() {
+            const video = document.getElementById('videoRecap');
+            video.innerHTML = 'Generating AI-powered Season Recap...';
+            
+            setTimeout(() => {
+                video.innerHTML = `
+                    <div style="padding: 40px;">
+                        <h2 style="margin-bottom: 20px;">Season: From Learners to Masters</h2>
+                        <p style="font-size: 1.1rem; line-height: 1.6;">
+                            You started uncertain in patch 14.10 with a 52% win rate.<br><br>
+                            By patch 14.17, you became a 73% win rate powerhouse.<br><br>
+                            234 matches. 8 patches. 87 duo games with PlayerX.<br><br>
+                            You mastered adaptation, conquered meta shifts, and built unbreakable synergy.<br><br>
+                            This is your story.
+                        </p>
+                    </div>
+                `;
+                generateTopChampions();
+                generateImprovements();
+                generateShareableMoments();
+            }, 2000);
+        }
+        
+        // Top Champions Chart
+        function generateTopChampions() {
+            const topChampionsCtx = document.getElementById('topChampionsChart');
+            new Chart(topChampionsCtx, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Thresh', 'Braum', 'Leona', 'Nautilus', 'Alistar'],
+                    datasets: [{
+                        data: [87, 73, 65, 54, 49],
+                        backgroundColor: ['#667eea', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Games Played' }
+                    }
+                }
+            });
+        }
+        
+        // Improvements List
+        function generateImprovements() {
+            const improvements = [
+                { metric: 'Adaptation Speed', from: '12.5 days', to: '3.8 days', increase: '+227%' },
+                { metric: 'Duo Synergy Score', from: '68%', to: '92%', increase: '+35%' },
+                { metric: 'Win Rate', from: '52%', to: '73%', increase: '+40%' },
+                { metric: 'Meta Awareness', from: '64%', to: '88%', increase: '+38%' },
+                { metric: 'Team Coordination', from: '58%', to: '90%', increase: '+55%' }
+            ];
+            
+            const container = document.getElementById('improvementsList');
+            container.innerHTML = '';
+            
+            improvements.forEach(imp => {
+                const div = document.createElement('div');
+                div.style.padding = '12px';
+                div.style.background = 'white';
+                div.style.borderRadius = '8px';
+                div.style.marginBottom = '10px';
+                div.innerHTML = `
+                    <strong style="color: #667eea;">${imp.metric}</strong>
+                    <div style="margin-top: 8px; font-size: 0.9rem;">
+                        <span style="color: #94a3b8;">${imp.from}</span>
+                        <span style="margin: 0 8px;">→</span>
+                        <span style="color: #10b981; font-weight: 600;">${imp.to}</span>
+                    </div>
+                    <div style="margin-top: 5px; color: #10b981; font-weight: 600;">${imp.increase} improvement</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        // Shareable Moments
+        function generateShareableMoments() {
+            const moments = [
+                { title: '87 Games with PlayerX', desc: '92% synergy achieved', icon: '🎯' },
+                { title: 'Fastest Adaptation', desc: '3.8 days to master patch 14.17', icon: '⚡' },
+                { title: '21-Game Win Streak', desc: 'During tank meta dominance', icon: '🔥' },
+                { title: 'Top 8% Adaptation', desc: 'In your MMR bracket', icon: '🏆' }
+            ];
+            
+            const container = document.getElementById('shareableMoments');
+            container.innerHTML = '';
+            
+            moments.forEach(moment => {
+                const div = document.createElement('div');
+                div.style.padding = '15px';
+                div.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                div.style.borderRadius = '8px';
+                div.style.marginBottom = '10px';
+                div.style.color = 'white';
+                div.style.cursor = 'pointer';
+                div.style.transition = 'transform 0.3s';
+                div.onmouseover = () => div.style.transform = 'scale(1.05)';
+                div.onmouseout = () => div.style.transform = 'scale(1)';
+                div.innerHTML = `
+                    <div style="font-size: 1.5rem; margin-bottom: 5px;">${moment.title}</div>
+                    <div style="opacity: 0.9;">${moment.desc}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        // Growth Report
+        function generateGrowthReport() {
+            const report = `
+                <div style="line-height: 1.8;">
+                    <h4 style="color: #667eea; margin-bottom: 20px;">Season Team Growth Report</h4>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h5 style="color: #667eea;">Executive Summary</h5>
+                        <p>Your team demonstrated exceptional growth across all performance metrics during Season. From an initial 52% win rate in patch 14.10, you achieved a remarkable 73% win rate by patch 14.17, representing a 40% improvement. This growth was driven by enhanced synergy, faster meta adaptation, and strategic composition optimization.</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h5 style="color: #667eea;">Key Performance Indicators</h5>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                                <strong>Total Matches Analyzed:</strong> 234 games across 8 patches
+                            </li>
+                            <li style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                                <strong>Overall Synergy Score:</strong> 87.3% (top 15% in your MMR)
+                            </li>
+                            <li style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                                <strong>Adaptation Speed:</strong> 3.8 days average (top 12% in bracket)
+                            </li>
+                            <li style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                                <strong>Best Duo Performance:</strong> You + PlayerX at 68.5% win rate (87 games)
+                            </li>
+                            <li style="padding: 10px 0;">
+                                <strong>Win Rate Progression:</strong> 52% → 73% (+40% improvement)
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h5 style="color: #667eea;">Multi-Agent System Insights</h5>
+                        <p><strong>Graph Builder Agent:</strong> Analyzed 1,247 player interactions, identifying PlayerX as your optimal synergy partner with 92% compatibility across mechanical sync, draft coordination, and macro decisions.</p>
+                        <p><strong>Chemistry Analyst Agent:</strong> GNN models detected hidden synergy patterns, revealing your team excels in tank-heavy compositions (+18% win rate) and struggles with assassin-focused metas (-8% win rate).</p>
+                        <p><strong>Meta Analyst Agent:</strong> Tracked performance across 8 patches, correlating your 12% win rate increase in patch 14.16 directly with assassin nerfs that aligned with your playstyle.</p>
+                        <p><strong>Adaptation Agent:</strong> Measured your team's learning velocity, showing exponential improvement from 12.5-day adaptation in early season to 3.8-day adaptation by season end.</p>
+                        <p><strong>Forecasting Agent:</strong> Predicts 76% win rate potential for next patch given current trends and recommended tank support focus.</p>
+                        <p><strong>Storyteller Agent:</strong> Generated 47 unique narrative insights connecting your gameplay evolution with meta shifts and personal growth milestones.</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h5 style="color: #667eea;">Persistent Strengths</h5>
+                        <ul>
+                            <li>Exceptional duo synergy with PlayerX (maintained 85%+ across all patches)</li>
+                            <li>Strong objective control (15% above MMR average)</li>
+                            <li>Rapid meta adaptation (top 12% in your bracket)</li>
+                            <li>Tank composition mastery (72% win rate)</li>
+                            <li>Team coordination improvement (+55% season-over-season)</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h5 style="color: #667eea;">Areas for Improvement</h5>
+                        <ul>
+                            <li>Assassin meta performance (48% win rate, -15% below average)</li>
+                            <li>Champion pool diversity (focused on 5 primary champions)</li>
+                            <li>Initial patch adaptation period (first 3 days post-patch show 8% dip)</li>
+                            <li>Solo queue performance vs. duo performance gap (12% difference)</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h5 style="color: #667eea;">AWS Infrastructure Highlights</h5>
+                        <p><strong>Data Processing:</strong> AWS Glue processed 15.7GB of match data across 234 games, with Athena executing 1,834 analytical queries for insight generation.</p>
+                        <p><strong>Graph Analysis:</strong> AWS Neptune managed 1,247 player relationship nodes with 3,872 synergy edges, enabling real-time network analysis.</p>
+                        <p><strong>Machine Learning:</strong> SageMaker trained 12 GNN models and 8 time-series forecasting models, achieving 89% prediction accuracy for duo performance.</p>
+                        <p><strong>AI Insights:</strong> Bedrock Claude generated 47 narrative insights, 234 match summaries, and 8 patch analysis reports with 94% user satisfaction.</p>
+                        <p><strong>Visualization:</strong> QuickSight rendered 156 dashboard views with real-time updates via Amplify integration.</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h5 style="color: #667eea;">Next Season Predictions</h5>
+                        <p>Based on your current trajectory and the Meta-Adaptive Recommendation Engine, you're projected to achieve:</p>
+                        <ul>
+                            <li>78-82% win rate potential with optimized duo compositions</li>
+                            <li>Sub-3-day adaptation speed with continued practice patterns</li>
+                            <li>Rank advancement of 2-3 divisions within first 6 weeks</li>
+                            <li>95% synergy score with PlayerX as coordination deepens</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; color: white;">
+                        <h5>Final Thoughts</h5>
+                        <p style="margin: 0;">You've transformed from a learning team into a meta-adaptive powerhouse. Your journey through Season showcases not just improved mechanics, but evolved game intelligence. The synergy you've built with PlayerX, your rapid adaptation to meta changes, and your team's collective growth represent the pinnacle of competitive development. As you enter next season, you're not just playing the game—you're playing ahead of it.</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('growthReport').innerHTML = report;
+        }
+        
+        // Button handlers
+        function regeneratePerformance() {
+            const newData = Array.from({length: 8}, () => Math.floor(Math.random() * 30) + 50);
+            performanceChart.data.datasets[0].data = newData;
+            performanceChart.update();
+        }
+        
+        function refreshNetwork() {
+            createSynergyNetwork();
+        }
+        
+        function analyzeSynergy() {
+            const newData = Array.from({length: 6}, () => Math.floor(Math.random() * 30) + 70);
+            synergyDistChart.data.datasets[0].data = newData;
+            const newData2 = Array.from({length: 6}, () => Math.floor(Math.random() * 30) + 60);
+            synergyDistChart.data.datasets[1].data = newData2;
+            synergyDistChart.update();
+        }
+        
+        function analyzeChampions() {
+            const newData = Array.from({length: 5}, () => Math.floor(Math.random() * 20) + 75);
+            championSynergyChart.data.datasets[0].data = newData;
+            championSynergyChart.update();
+        }
+        
+        function analyzePatchImpact() {
+            const newData = Array.from({length: 10}, () => Math.floor(Math.random() * 30) + 50);
+            patchTimelineChart.data.datasets[0].data = newData;
+            patchTimelineChart.update();
+        }
+        
+        function analyzeMetaPhases() {
+            const newData = Array.from({length: 5}, () => Math.floor(Math.random() * 30) + 50);
+            metaPhaseChart.data.datasets[0].data = newData;
+            metaPhaseChart.update();
+        }
+        
+        function generatePredictions() {
+            predictionChart.data.datasets.forEach(dataset => {
+                dataset.data = dataset.data.map(val => Math.max(50, Math.min(85, val + Math.floor(Math.random() * 10) - 5)));
+            });
+            predictionChart.update();
+        }
+        
+        function comparePeers() {
+            socialComparisonChart.data.datasets.forEach(dataset => {
+                dataset.data = dataset.data.map(val => Math.min(100, Math.max(60, val + Math.floor(Math.random() * 10) - 5)));
+            });
+            socialComparisonChart.update();
+        }
+        
+        function runAgentPipeline() {
+            createAgentWorkflow();
+            alert('Multi-Agent Pipeline Executing:\n\n1. Graph Builder: Fetching summoner-v4 and match-v5 data\n2. Chemistry Analyst: Running GNN models on Neptune graph\n3. Meta Tracker: Processing patch 14.17 via Glue + Athena\n4. Adaptation Agent: Calculating learning curves with SageMaker\n5. Forecaster: Generating predictions for patch 14.21\n6. Storyteller: Creating narrative insights via Bedrock\n7. Visualizer: Updating QuickSight dashboards\n\nEstimated completion: 45 seconds');
+            
+            setTimeout(() => {
+                alert('Pipeline Complete!\n\nProcessed: 234 matches, 8 patches, 5 players\nInsights Generated: 12 new predictions\nSynergy Updates: 4 duo pairs analyzed\nAdaptation Metrics: Updated for all team members');
+            }, 2000);
+        }
+        
+        function shareToSocial() {
+            alert('Shareable Content Generated!\n\n✓ Season highlight reel video\n✓ Top 5 achievement cards\n✓ Synergy network visualization\n✓ Personal growth infographic\n\nReady to share on:\n- Discord (auto-posted via integration)\n- Twitter\n- Instagram\n- Team forums\n\nYour friends can compare their stats with yours!');
+        }
+        
+        function exportReport() {
+            alert('Generating PDF Report...\n\nIncluding:\n✓ All performance charts\n✓ Synergy analysis\n✓ Meta adaptation timeline\n✓ Predictions for next season\n✓ AWS infrastructure metrics\n✓ Multi-agent insights\n\nReport will be downloaded shortly!');
+        }
+        
+        // Handle enter key in chat
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
