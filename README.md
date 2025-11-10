@@ -47,50 +47,50 @@ SynergyScope employs a multi-agent system architecture with seven specialized ag
 - Terraform 1.5+ (for infrastructure deployment)
 - Docker and Docker Compose (for local development)
 
-##AWS AI Services Implementation**
+##AWS AI Services Implementation
 
-- Amazon Bedrock (Claude/Titan Models)
+- Amazon Bedrock (Claude/Titan Models): 
 Bedrock serves as the narrative intelligence layer, transforming structured analytical outputs into natural language insights. The service receives JSON-formatted data containing synergy scores, adaptation metrics, and performance trends from upstream agents. Claude models generate contextual summaries like "Team synergy peaked in patch 14.13 driven by control-style compositions," translating statistical patterns into actionable coaching advice. Bedrock's API integration through Lambda enables real-time insight generation without managing model infrastructure.
 
-- Amazon SageMaker (Machine Learning Training & Inference)
+- Amazon SageMaker (Machine Learning Training & Inference): 
 SageMaker hosts three distinct model types for specialized analysis. Graph Neural Network models built with PyTorch Geometric process Neptune relationship data to detect synergy patterns that traditional metrics miss, learning which player pairs exhibit coordinated behavior beyond simple win rates. DeepAR time-series models forecast adaptation curves by analyzing performance trajectories across patch transitions. SageMaker Recommender algorithms combine historical synergy data with predicted meta shifts to suggest optimal team compositions, outputting ranked recommendations with confidence scores.
 
-- Amazon Neptune (Graph Database)
+- Amazon Neptune (Graph Database): 
 Neptune stores the social graph where nodes represent players and edges encode relationship metrics like co-play frequency, win rates, and role combinations. The graph structure enables efficient traversal queries for finding high-synergy pairs and detecting communities within larger player networks. GNN models train directly on this graph topology, leveraging Neptune's Gremlin API for batch data extraction during model training cycles.
 
-- AWS Glue (ETL & Data Preparation)
+- AWS Glue (ETL & Data Preparation): 
 Glue ETL jobs transform raw JSON match data from Riot API into structured formats suitable for analysis. Jobs parse nested timeline events to extract coordinated play indicators, aggregate player statistics across match sequences, and join performance data with patch metadata based on timestamps. Glue Data Catalog creates schemas that enable Athena to query processed datasets stored in S3 partitioned by date and player.
 
-- Amazon Athena (Query Engine)
+- Amazon Athena (Query Engine): 
 Athena executes SQL queries against S3 data lakes to compute aggregations needed for agent analysis. Queries calculate patch-specific win rates, champion mastery distributions, and performance deltas before/after balance changes. The Meta Tracker agent relies on Athena to correlate performance shifts with specific patch notes by temporal analysis of match outcomes.
 
-- AWS Lambda (Serverless Compute)
+- AWS Lambda (Serverless Compute): 
 Lambda functions orchestrate the entire data pipeline from API ingestion through insight delivery. Functions trigger on EventBridge schedules to fetch new match data, invoke SageMaker endpoints for real-time predictions, call Bedrock APIs for narrative generation, and aggregate results into DynamoDB. The serverless model eliminates infrastructure management while scaling automatically during batch processing jobs.
 
-- Amazon QuickSight (Analytics Visualization)
+- Amazon QuickSight (Analytics Visualization): 
 QuickSight dashboards connect directly to Neptune, Athena, and DynamoDB to visualize synergy networks, adaptation heatmaps, and performance trends. SPICE in-memory engine caches frequently accessed datasets for sub-second query response. Embedded dashboards in the Amplify frontend provide interactive filtering without requiring separate BI tool access.
 
-- AWS Step Functions (Workflow Orchestration)
+- AWS Step Functions (Workflow Orchestration): 
 Step Functions coordinate multi-agent workflows where outputs from one agent serve as inputs to downstream analysis. A typical workflow sequences Graph Builder extracting Neptune data, Chemistry Analyst running GNN inference, Meta Tracker querying patch correlations, Adaptation Agent calculating learning curves, Forecaster generating predictions, and Storyteller producing narratives. Error handling and retry logic ensure pipeline reliability.
 
 ##Data Sources and Processing
 
-- Riot Games API Endpoints
+- Riot Games API Endpoints: 
 The platform consumes data from summoner-v4 (player profiles), match-v5 (detailed match history with timeline events), league-v4 (ranked tier information), and champion-mastery-v4 (champion proficiency scores). API Gateway proxies requests through Lambda with rate limiting and caching in DynamoDB to respect Riot's API quotas while maintaining data freshness.
 
-- Match Timeline Data
+- Match Timeline Data: 
 Timeline events within match-v5 responses capture frame-by-frame game state including player positions, ability usage, and objective timings. This granular data feeds synergy detection algorithms that identify coordinated plays like synchronized engages or vision control patterns that raw statistics miss.
 
-- Patch Metadata
+- Patch Metadata: 
 External data sources providing patch notes, item changes, and champion balance adjustments are scraped and stored in S3. Glue jobs parse this unstructured text to create structured patch impact records that the Meta Tracker correlates with performance changes.
 
-- Graph Relationship Encoding
+- Graph Relationship Encoding: 
 Neptune edges store weighted relationships calculated from match data: co-play frequency (number of matches together), win rate when paired, average gold differential, and role-specific synergy scores. Node properties include player rank, champion pools, and historical performance metrics that GNN models use as feature vectors.
 
-- Training Dataset Construction
+- Training Dataset Construction: 
 SageMaker training jobs pull historical match data spanning multiple patches to build datasets where each sample represents a player-pair with features including aggregate statistics, champion overlap, and temporal context. Labels for supervised learning include actual win outcomes and measured synergy indicators derived from coordinated play detection algorithms.
 
-- Real-Time Data Flow
+- Real-Time Data Flow: 
 Live analysis mode fetches recent matches via Lambda triggered by EventBridge rules, processes through Glue streaming ETL, updates Neptune graph incrementally, invokes SageMaker endpoints for inference, and pushes results to frontend through AppSync WebSocket connections enabling near real-time dashboard updates.
 
 ## Quick Start
