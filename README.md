@@ -1,4 +1,4 @@
-# synergyscope - Multi-Agent AI for Esports Performance Development Platform
+# SynergyScope - Multi-Agent AI for Esports Performance Development Platform
 
 SynergyScope is an advanced AI-powered analytics platform that maps social synergy, tracks meta adaptation, and predicts optimal team compositions in League of Legends using multi-agent architecture on AWS.
 
