@@ -47,7 +47,7 @@ SynergyScope employs a multi-agent system architecture with seven specialized ag
 - Terraform 1.5+ (for infrastructure deployment)
 - Docker and Docker Compose (for local development)
 
-##AWS AI Services Implementation
+## AWS AI Services Implementation
 
 - Amazon Bedrock (Claude/Titan Models): 
 Bedrock serves as the narrative intelligence layer, transforming structured analytical outputs into natural language insights. The service receives JSON-formatted data containing synergy scores, adaptation metrics, and performance trends from upstream agents. Claude models generate contextual summaries like "Team synergy peaked in patch 14.13 driven by control-style compositions," translating statistical patterns into actionable coaching advice. Bedrock's API integration through Lambda enables real-time insight generation without managing model infrastructure.
@@ -73,7 +73,7 @@ QuickSight dashboards connect directly to Neptune, Athena, and DynamoDB to visua
 - AWS Step Functions (Workflow Orchestration): 
 Step Functions coordinate multi-agent workflows where outputs from one agent serve as inputs to downstream analysis. A typical workflow sequences Graph Builder extracting Neptune data, Chemistry Analyst running GNN inference, Meta Tracker querying patch correlations, Adaptation Agent calculating learning curves, Forecaster generating predictions, and Storyteller producing narratives. Error handling and retry logic ensure pipeline reliability.
 
-##Data Sources and Processing
+## Data Sources and Processing
 
 - Riot Games API Endpoints: 
 The platform consumes data from summoner-v4 (player profiles), match-v5 (detailed match history with timeline events), league-v4 (ranked tier information), and champion-mastery-v4 (champion proficiency scores). API Gateway proxies requests through Lambda with rate limiting and caching in DynamoDB to respect Riot's API quotas while maintaining data freshness.
