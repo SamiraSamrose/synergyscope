@@ -13,8 +13,8 @@ SynergyScope is an advanced AI-powered analytics platform that maps social syner
 - **Interactive Visualizations**: Comprehensive dashboards with synergy graphs, heatmaps, and timelines
 
 ## Links
-- **Live Site Demo (No API Integration)**: https://youtu.be/83SFsLXK-JA
-- **Source Code**: https://youtu.be/83SFsLXK-JA
+- **Live Site Demo (No API Integration)**: https://samirasamrose.github.io/synergyscope/
+- **Source Code**: https://github.com/SamiraSamrose/synergyscope
 - **Video Demo**: https://youtu.be/83SFsLXK-JA
 
 
